@@ -1,0 +1,20 @@
+.ui-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #3369f3;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+
+  &:hover {
+    background-color: color-mix(in srgb, #3369f3, #000000 10%);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}

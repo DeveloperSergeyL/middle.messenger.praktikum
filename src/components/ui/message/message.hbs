@@ -1,0 +1,16 @@
+<div class="message {{#if (isEqual 'My' autor)}} message--outgoing{{/if}}">
+    <div class="message__bubble">
+        <span class="message__text">{{{text}}}</span>
+
+        {{#if imageUrl}}
+        <div class="message__attachment">
+            <img src="{{imageUrl}}" alt="Вложение" class="message__image">
+        </div>
+        {{/if}}
+
+        <span class="message__time">
+            {{time}}
+            <span class="message__status-check">✓✓</span>
+        </span>
+    </div>
+</div>

@@ -1,0 +1,18 @@
+<div class="auth-container">
+    <main class="auth-card">
+        <h1 class="auth-card__title">Вход</h1>
+
+        <form class="auth-card__form" id="login-form" novalidate>
+
+            {{> input id="login" name="login" type="text" label="Логин" placeholder="ivanivanov" value=values.login
+            error=errors.login required=true}}
+
+            {{> input id="password" name="password" type="password" label="Пароль" placeholder="••••••••••••"
+            value=values.password error=errors.password required=true}}
+
+            {{> button type="submit" text="Авторизоваться" class="auth-card__submit-btn"}}
+        </form>
+
+        {{> link href="/signup" id="to-signup-btn" text="Нет аккаунта?" class="auth-card__link"}}
+    </main>
+</div>

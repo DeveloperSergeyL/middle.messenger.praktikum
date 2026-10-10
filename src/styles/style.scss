@@ -1,0 +1,38 @@
+@import "./variables.scss";
+
+@import '../components/ui/avatar/avatar.scss';
+@import '../components/ui/avatar-modal/avatar-modal.scss';
+@import '../components/ui/input/input.scss';
+@import '../components/ui/button/button.scss';
+@import '../components/ui/link/link.scss';
+@import '../components/ui/modal/modal.scss';
+
+@import '../components/pages/login/login.scss';
+@import '../components/pages/messenger/messenger.scss';
+@import '../components/pages/signup/signup.scss';
+
+@import '../components/ui/chat-item/chat-item.scss';
+@import '../components/ui/chat-window/chat-window.scss';
+@import '../components/ui/message/message.scss';
+@import '../components/ui/sidebar/sidebar.scss';
+
+@import '../components/pages/profile/profile.scss';
+@import '../components/pages/error/error.scss';
+
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  color: $color-text-main;
+  background-color: #f4f4f4;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
