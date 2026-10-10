@@ -1,0 +1,20 @@
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal-card" id="modal-card">
+        <h2 class="modal-card__title">{{title}}</h2>
+
+        <form class="modal-card__form" id="modal-form" data-action="{{action}}">
+            {{> input
+            id="modal-login"
+            name="login"
+            type="text"
+            label="Логин"
+            placeholder="ivanivanov"
+            value=value
+            error=error
+            required=true
+            }}
+
+            {{> button type="submit" text=buttonText class="modal-card__submit-btn"}}
+        </form>
+    </div>
+</div>

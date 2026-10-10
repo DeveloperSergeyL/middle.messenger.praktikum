@@ -1,0 +1,13 @@
+<aside class="sidebar">
+    <div class="sidebar__header">
+        <a href="#" class="sidebar__profile-link" id="to-profile-btn">Профиль</a>
+        <div class="sidebar__search-wrapper">
+            <input type="text" class="sidebar__search" placeholder="Поиск">
+        </div>
+    </div>
+    <nav class="sidebar__chat-list">
+        {{#each chats}}
+        {{> chat-item this activeChatId=../activeChatId}}
+        {{/each}}
+    </nav>
+</aside>

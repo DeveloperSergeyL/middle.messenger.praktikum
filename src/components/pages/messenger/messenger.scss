@@ -1,0 +1,8 @@
+.messenger {
+  display: flex;
+  width: 100vw;
+  max-width: 1200px;
+  height: 100vh;
+  background-color: $color-bg-chat;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}

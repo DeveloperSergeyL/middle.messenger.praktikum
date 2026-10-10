@@ -1,0 +1,6 @@
+<div class="form-field {{class}} {{#if error}}form-field--error{{/if}}">
+    <label for="{{id}}" class="form-field__label">{{label}}</label>
+    <input type="{{type}}" id="{{id}}" name="{{name}}" class="form-field__input" value="{{value}}"
+        placeholder="{{placeholder}}" {{#if required}}required{{/if}}>
+    <span class="form-field__error">{{error}}</span>
+</div>
