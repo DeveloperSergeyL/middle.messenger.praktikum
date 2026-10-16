@@ -11,7 +11,7 @@ jobs:
     env:
       SPRINT: ${{github.head_ref}}
       TERM: xterm-256color
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest 
     strategy:
       matrix:
         node-version: [22.x]
