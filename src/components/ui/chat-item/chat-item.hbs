@@ -1,0 +1,40 @@
+<div class="chat-item {{#if (isEqual id ../activeChatId)}}chat-item--active{{/if}}" data-id="{{id}}">
+
+    {{> avatar url=avatarUrl class="chat-item__avatar"}}
+
+    <div class="chat-item__content">
+        <div class="chat-item__row">
+
+            <span class="chat-item__name">
+                {{title}}
+            </span>
+
+            {{#with (lastMessage messages)}}
+
+            <time class="chat-item__time">
+                {{#if (isEqual (formatChatTime dayDate) "today")}}
+                {{time}}
+                {{else}}
+                {{formatChatTime dayDate}}
+                {{/if}}
+            </time>
+
+            {{/with}}
+
+        </div>
+        <div class="chat-item__row">
+
+            {{#with (lastMessage messages)}}
+            <p class="chat-item__message">
+                {{#if (isEqual 'My' autor)}}<b>Вы: </b> {{/if}}
+                {{{text}}}
+            </p>
+            {{/with}}
+
+            {{#if unreadCount}}
+            <span class="chat-item__badge chat-item__badge--unread-dot">{{unreadCount}}</span>
+            {{/if}}
+        </div>
+    </div>
+
+</div>

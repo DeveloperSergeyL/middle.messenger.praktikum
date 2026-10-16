@@ -1,0 +1,44 @@
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: #ffffff;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  &__code {
+    font-size: 40px;
+    font-weight: 500;
+    color: #000000;
+    margin: 0 0 20px 0;
+    line-height: 1;
+  }
+
+  &__description {
+    font-size: 16px;
+    font-weight: 400;
+    color: #000000;
+    margin: 0 0 60px 0;
+  }
+
+  &__back-link {
+    font-size: 11px;
+    
+    .ui-link {
+      color: #3369f3;
+      
+      &:hover {
+        color: color-mix(in srgb, #3369f3, #000000 15%);
+      }
+    }
+  }
+}

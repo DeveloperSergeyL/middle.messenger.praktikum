@@ -1,0 +1,34 @@
+<div class="modal-overlay" id="avatar-modal-overlay">
+    <div class="modal-card modal-card--avatar">
+
+        {{#if (isEqual avatarModalState "select")}}
+        <h2 class="modal-card__title">Загрузите файл</h2>
+        {{/if}}
+        {{#if (isEqual avatarModalState "error")}}
+        <h2 class="modal-card__title modal-card__title--danger">Ошибка, попробуйте ещё раз</h2>
+        {{/if}}
+
+        {{#if (isEqual avatarModalState "uploaded")}}
+        <h2 class="modal-card__title">Файл загружен</h2>
+        <span class="modal-card__filename">{{avatarFileName}}</span>
+        {{/if}}
+
+        <form class="modal-card__form" id="avatar-modal-form">
+
+            <input type="file" id="avatar-file-input" name="avatar" accept="image/*" style="display: none;">
+
+            {{#if (isNotEqual avatarModalState "uploaded")}}
+            <div class="modal-card__file-trigger">
+                {{> link href="#" id="avatar-choose-link" text="Выбрать файл на компьютере"}}
+            </div>
+            {{/if}}
+
+            {{> button type="submit" text="Поменять" class="modal-card__submit-btn"}}
+
+            {{#if avatarModalError}}
+            <span class="modal-card__error-text">{{avatarModalError}}</span>
+            {{/if}}
+        </form>
+
+    </div>
+</div>

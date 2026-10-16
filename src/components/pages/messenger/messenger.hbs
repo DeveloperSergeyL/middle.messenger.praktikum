@@ -1,0 +1,14 @@
+<div class="messenger">
+
+    {{> sidebar}}
+    {{> chat-window}}
+
+    {{#if (isEqual activeModal "add-user")}}
+    {{> modal title="Добавить пользователя" buttonText="Добавить" action="add" error=modalError value=modalValue}}
+    {{/if}}
+
+    <!-- 🌟 Если в стейте запущена модалка удаления -->
+    {{#if (isEqual activeModal "delete-user")}}
+    {{> modal title="Удалить пользователя" buttonText="Удалить" action="delete" error=modalError value=modalValue}}
+    {{/if}}
+</div>
