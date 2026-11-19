@@ -21,7 +21,7 @@
     "skipLibCheck": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "sourceMap": true,
+    "sourceMap": true
   },
   "include": [
     "src"
