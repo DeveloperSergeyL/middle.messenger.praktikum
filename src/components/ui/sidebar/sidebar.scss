@@ -17,8 +17,10 @@
     color: $color-text-muted;
     text-decoration: none;
     font-size: 12px;
-    
-    &:hover { background-color: color-mix(in srgb, $color-text-muted, #ffffff 20%); }
+
+    &:hover {
+      background-color: color-mix(in srgb, $color-text-muted, #fff 20%);
+    }
   }
 
   &__search-wrapper {
@@ -37,7 +39,7 @@
 
     &:focus {
       text-align: left;
-      background-color: color-mix(in srgb, #efefef, #ffffff 2%);
+      background-color: color-mix(in srgb, #efefef, #fff 2%);
     }
   }
 

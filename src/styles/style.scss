@@ -1,24 +1,19 @@
-@import "./variables.scss";
-
-@import '../components/ui/avatar/avatar.scss';
-@import '../components/ui/avatar-modal/avatar-modal.scss';
-@import '../components/ui/input/input.scss';
-@import '../components/ui/button/button.scss';
-@import '../components/ui/link/link.scss';
-@import '../components/ui/modal/modal.scss';
-
-@import '../components/pages/login/login.scss';
-@import '../components/pages/messenger/messenger.scss';
-@import '../components/pages/signup/signup.scss';
-
-@import '../components/ui/chat-item/chat-item.scss';
-@import '../components/ui/chat-window/chat-window.scss';
-@import '../components/ui/message/message.scss';
-@import '../components/ui/sidebar/sidebar.scss';
-
-@import '../components/pages/profile/profile.scss';
-@import '../components/pages/error/error.scss';
-
+@import "./variables";
+@import "../components/ui/avatar/avatar";
+@import "../components/ui/avatar-modal/avatar-modal";
+@import "../components/ui/input/input";
+@import "../components/ui/button/button";
+@import "../components/ui/link/link";
+@import "../components/ui/modal/modal";
+@import "../components/pages/login/login";
+@import "../components/pages/messenger/messenger";
+@import "../components/pages/signup/signup";
+@import "../components/ui/chat-item/chat-item";
+@import "../components/ui/chat-window/chat-window";
+@import "../components/ui/message/message";
+@import "../components/ui/sidebar/sidebar";
+@import "../components/pages/profile/profile";
+@import "../components/pages/error/error";
 
 * {
   box-sizing: border-box;
@@ -27,7 +22,7 @@
 }
 
 body {
-  font-family: "Inter", sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 13px;
   color: $color-text-main;
   background-color: #f4f4f4;

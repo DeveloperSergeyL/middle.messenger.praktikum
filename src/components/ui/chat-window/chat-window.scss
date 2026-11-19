@@ -1,15 +1,16 @@
 .chat-window {
   flex: 1;
   display: flex;
-  width: 100%; 
+  width: 100%;
   height: 100vh;
   flex-direction: column;
   background-color: $color-bg-chat;
-  &__empty{
+
+  &__empty {
     margin: auto;
     font-weight: 500;
     font-size: 12px;
-    color: #999999;
+    color: #999;
   }
 }
 
@@ -32,19 +33,21 @@
     height: 34px;
     border-radius: 50%;
     background-color: #e0e0e0;
+
     img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover; 
-            display: block;
-        }
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
   }
 
   &__name {
     font-weight: 600;
     font-size: 13px;
   }
+
   &__actions-btn {
     display: flex;
     align-items: center;
@@ -54,12 +57,13 @@
     padding: 0;
     width: 25px;
     height: 25px;
-    background: #EFEFEF;
+    background: #efefef;
     border-radius: 50%;
     font-size: 21px;
     color: $color-accent-blue;
     cursor: pointer;
   }
+
   &__actions-wrapper {
     position: relative;
     display: flex;
@@ -91,7 +95,8 @@
   gap: 15px;
   height: 60px;
 
-  &__attach-btn, &__send-btn {
+  &__attach-btn,
+  &__send-btn {
     background: none;
     border: none;
     font-size: 18px;
@@ -99,12 +104,14 @@
     color: $color-text-muted;
     transition: color 0.2s ease;
 
-    &:hover { color: $color-accent-blue; }
+    &:hover {
+      color: $color-accent-blue;
+    }
   }
 
   &__send-btn {
     background-color: $color-accent-blue;
-    color: #ffffff;
+    color: #fff;
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -112,10 +119,10 @@
     align-items: center;
     justify-content: center;
     font-size: 12px;
-    
+
     &:hover {
-      background-color: color-mix(in srgb, $color-accent-blue, #ffffff 10%);
-      color: #ffffff;
+      background-color: color-mix(in srgb, $color-accent-blue, #fff 10%);
+      color: #fff;
     }
   }
 
@@ -129,7 +136,7 @@
     outline: none;
 
     &:focus {
-      background-color: color-mix(in srgb, #efefef, #ffffff 2%);
+      background-color: color-mix(in srgb, #efefef, #fff 2%);
     }
   }
 
@@ -144,9 +151,9 @@
   position: absolute;
   top: 35px;
   right: 0;
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 10%);
   padding: 10px 0;
   width: 210px;
   display: flex;
@@ -171,19 +178,18 @@
 
   &__text {
     font-size: 13px;
-    color: #000000;
+    color: #000;
     font-weight: 400;
   }
 }
-
 
 .attach-menu {
   position: absolute;
   bottom: 50px;
   left: 0;
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 10%);
   padding: 10px 0;
   width: 165px;
   display: flex;
@@ -208,7 +214,7 @@
 
   &__text {
     font-size: 13px;
-    color: #000000;
+    color: #000;
     font-weight: 400;
   }
 }
@@ -220,7 +226,8 @@
   box-sizing: border-box;
   flex-shrink: 0;
 
-    &--add, &--remove {
+  &--add,
+  &--remove {
     border: 2px solid $color-icon-blue;
     border-radius: 50%;
     display: flex;
@@ -228,23 +235,25 @@
     justify-content: center;
   }
 
-
   &--add .custom-icon__plus {
     position: relative;
     width: 10px;
     height: 10px;
 
-    &::before, &::after {
-      content: '';
+    &::before,
+    &::after {
+      content: "";
       position: absolute;
       background-color: $color-icon-blue;
     }
+
     &::before {
       top: 4px;
       left: -2px;
       width: 14px;
       height: 2px;
     }
+
     &::after {
       top: -2px;
       left: 4px;
@@ -257,19 +266,22 @@
     position: relative;
     width: 10px;
     height: 10px;
-    transform: rotate(45deg); 
+    transform: rotate(45deg);
 
-    &::before, &::after {
-      content: '';
+    &::before,
+    &::after {
+      content: "";
       position: absolute;
       background-color: $color-icon-blue;
     }
+
     &::before {
       top: 4px;
       left: -2px;
       width: 14px;
       height: 1px;
     }
+
     &::after {
       top: -2px;
       left: 4px;
@@ -311,12 +323,12 @@
 
     .custom-icon__badge {
       position: absolute;
-      bottom: 0px;
-      right: 0px;
+      bottom: 0;
+      right: 0;
       width: 8px;
       height: 8px;
       background-color: $color-icon-blue;
-      border-radius: 4px 0 1px 0;
+      border-radius: 4px 0 1px;
     }
   }
 
