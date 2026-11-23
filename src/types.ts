@@ -50,6 +50,59 @@ export interface AppState {
     isAvatarModalOpen: boolean;
     avatarModalState: AvatarModalState;
     avatarFileName: string;
+    avatarFile: File | null;
     avatarModalError: string | null;
     currentUser: User;
+}
+
+export interface SignInData {
+    login: string;
+    password: string;
+}
+
+export interface SignUpData {
+    first_name: string;
+    second_name: string;
+    login: string;
+    email: string;
+    password: string;
+    phone: string;
+}
+
+export interface UserDTO {
+    id: number;
+    first_name: string;
+    second_name: string;
+    display_name: string | null;
+    login: string;
+    email: string;
+    phone: string;
+    avatar: string | null;
+}
+
+export interface UpdateProfileData {
+    first_name: string;
+    second_name: string;
+    display_name: string;
+    login: string;
+    email: string;
+    phone: string;
+}
+
+export interface UpdatePasswordData {
+    oldPassword: string;
+    newPassword: string;
+}
+
+export interface ChatDTO {
+    id: number;
+    title: string;
+    avatar: string | null;
+    unread_count: number;
+    created_by: number;
+    last_message: {
+        user: UserDTO;
+        time: string;
+        content: string;
+    } | null;
 }

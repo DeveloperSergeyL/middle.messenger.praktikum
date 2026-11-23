@@ -44,7 +44,6 @@ export default class Form extends Block<FormProps> {
         });
 
         if (Object.keys(errors).length === 0) {
-            console.log(`Отправка формы [${this.props.id}]:`, values);
             this.props.onSubmit?.(values);
         }
     }

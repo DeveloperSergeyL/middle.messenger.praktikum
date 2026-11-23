@@ -2,12 +2,13 @@ import Block, { BaseProps } from "../../../core/Block";
 import Form from "../../ui/form/Form";
 import Input from "../../ui/input/Input";
 import Button from "../../ui/button/Button";
-import { AppState } from "../../../types";
+import { SignUpData } from "../../../types";
 
 export interface SignupPageProps extends BaseProps {
   errors: Record<string, string> | null;
   values: Record<string, string> | null;
-  onStateChange: (newState: Partial<AppState>) => void;
+  onSubmit: (data: SignUpData) => void;
+  onNavigate: (path: string) => void;
 }
 
 export default class SignupPage extends Block<SignupPageProps> {
@@ -92,13 +93,14 @@ export default class SignupPage extends Block<SignupPageProps> {
         text: "Зарегистрироваться",
         class: "auth-card__submit-btn",
       }),
-      onSubmit: () => {
-        localStorage.setItem("isAuth", "true");
-        props.onStateChange({
-          formErrors: null,
-          formValues: null,
-          isAuth: true,
-          currentPage: "chat",
+      onSubmit: (values) => {
+        props.onSubmit({
+          first_name: values.first_name,
+          second_name: values.second_name,
+          login: values.login,
+          email: values.email,
+          password: values.password,
+          phone: values.phone,
         });
       },
     });
@@ -113,11 +115,7 @@ export default class SignupPage extends Block<SignupPageProps> {
     const toLoginBtn = this.element?.querySelector("#to-login-btn");
     toLoginBtn?.addEventListener("click", (e: Event) => {
       e.preventDefault();
-      this.props.onStateChange({
-        formErrors: null,
-        formValues: null,
-        currentPage: "login",
-      });
+      this.props.onNavigate("/");
     });
   }
 
@@ -127,7 +125,7 @@ export default class SignupPage extends Block<SignupPageProps> {
         <main class="auth-card auth-card--signup">
           <h1 class="auth-card__title">Регистрация</h1>
           {{{form}}}
-          {{> link href="/login" id="to-login-btn" text="Войти" class="auth-card__link"}}
+          {{> link href="/" id="to-login-btn" text="Войти" class="auth-card__link"}}
         </main>
       </div>
     `;

@@ -4,6 +4,8 @@ import {
   AppState,
   AvatarModalState,
   ProfileMode,
+  UpdatePasswordData,
+  UpdateProfileData,
   User,
 } from "../../../types";
 import { validateField, validateForm } from "../../../utils/validator";
@@ -14,8 +16,13 @@ export interface ProfilePageProps extends BaseProps {
   isAvatarModalOpen: boolean;
   avatarModalState: AvatarModalState;
   avatarFileName: string;
+  avatarFile: File | null;
   avatarModalError: string | null;
   onStateChange: (newState: Partial<AppState>) => void;
+  onUpdateProfile: (data: UpdateProfileData) => void;
+  onUpdatePassword: (data: UpdatePasswordData) => void;
+  onUpdateAvatar: (file: File) => void;
+  onNavigate: (path: string) => void;
   onLogout: () => void;
 }
 
@@ -64,7 +71,7 @@ export default class ProfilePage extends Block<ProfilePageProps> {
     const backBtn = root.querySelector("#profile-back-btn");
     backBtn?.addEventListener("click", () => {
       if (this.props.profileMode === "view") {
-        this.props.onStateChange({ currentPage: "chat" });
+        this.props.onNavigate("/messenger");
       } else {
         this.props.onStateChange({ profileMode: "view" });
       }
@@ -121,21 +128,15 @@ export default class ProfilePage extends Block<ProfilePageProps> {
 
         if (Object.keys(errors).length > 0) return;
 
-        const updatedUser: User = {
-          ...this.props.user,
+        this.props.onUpdateProfile({
           email: values.email,
           login: values.login,
           first_name: values.first_name,
           second_name: values.second_name,
           display_name: values.display_name,
           phone: values.phone,
-        };
-
-        console.log("Новые данные профиля сохранены:", values);
-        this.props.onStateChange({
-          currentUser: updatedUser,
-          profileMode: "view",
         });
+
       });
     }
 
@@ -164,8 +165,10 @@ export default class ProfilePage extends Block<ProfilePageProps> {
 
         if (Object.keys(errors).length > 0) return;
 
-        console.log("Пароль успешно изменён:", passwords);
-        this.props.onStateChange({ profileMode: "view" });
+        this.props.onUpdatePassword({
+          oldPassword: passwords.oldPassword,
+          newPassword: passwords.newPassword,
+        });
       });
     }
 
@@ -175,9 +178,11 @@ export default class ProfilePage extends Block<ProfilePageProps> {
         isAvatarModalOpen: true,
         avatarModalState: "select",
         avatarFileName: "",
+        avatarFile: null,
         avatarModalError: null,
       });
     });
+
 
     if (this.props.isAvatarModalOpen) {
       const overlay = root.querySelector("#avatar-modal-overlay");
@@ -205,6 +210,7 @@ export default class ProfilePage extends Block<ProfilePageProps> {
           this.props.onStateChange({
             avatarModalState: "uploaded",
             avatarFileName: file.name,
+            avatarFile: file,
             avatarModalError: null,
           });
         }
@@ -213,25 +219,15 @@ export default class ProfilePage extends Block<ProfilePageProps> {
       modalForm?.addEventListener("submit", (e: SubmitEvent) => {
         e.preventDefault();
 
-        if (this.props.avatarModalState === "select") {
+        if (this.props.avatarModalState === "select" || !this.props.avatarFile) {
           this.props.onStateChange({ avatarModalError: "Нужно выбрать файл" });
           return;
         }
 
-        if (this.props.avatarFileName === "error.jpg") {
-          this.props.onStateChange({
-            avatarModalState: "error",
-            avatarFileName: "",
-            avatarModalError: null,
-          });
-          return;
-        }
-
-        console.log("Отправка формы аватара:", {
-          avatar: this.props.avatarFileName,
-        });
-        this.props.onStateChange({ isAvatarModalOpen: false });
+        this.props.onUpdateAvatar(this.props.avatarFile);
       });
+
+
     }
   }
 

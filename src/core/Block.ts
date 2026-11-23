@@ -110,6 +110,11 @@ export default abstract class Block<P extends BaseProps = BaseProps> {
         return this._element;
     }
 
+    public destroy(): void {
+        this._removeEvents();
+        this._element?.remove();
+    }
+
     private _compile(templateString: string): DocumentFragment {
         const propsAndStubs: Record<string, unknown> = { ...this.props };
 

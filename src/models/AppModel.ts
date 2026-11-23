@@ -1,6 +1,7 @@
 import EventBus from "../core/EventBus";
-import { mockChats } from "../mocks/mockData";
-import { AppState, Chat, User } from "../types";
+import { AppState, Chat, ChatDTO, User, UserDTO } from "../types";
+
+const RESOURCES_URL = "https://ya-praktikum.tech/api/v2/resources";
 
 export default class AppModel extends EventBus {
     static EVENTS = {
@@ -8,14 +9,13 @@ export default class AppModel extends EventBus {
     } as const;
 
     private state: AppState;
-    private chats: Chat[];
+    private chats: Chat[] = [];
 
     constructor() {
         super();
-        const isAuth = localStorage.getItem("isAuth") === "true";
         this.state = {
-            isAuth,
-            currentPage: isAuth ? "chat" : "login",
+            isAuth: false,
+            currentPage: "login",
             activeChatId: null,
             formErrors: null,
             formValues: null,
@@ -29,18 +29,18 @@ export default class AppModel extends EventBus {
             isAvatarModalOpen: false,
             avatarModalState: "select",
             avatarFileName: "",
+            avatarFile: null,
             avatarModalError: null,
             currentUser: {
-                email: "pochta@yandex.ru",
-                login: "ivanivanov",
-                first_name: "Иван",
-                second_name: "Иванов",
-                display_name: "Иван",
-                phone: "+7 (909) 967 30 30",
+                email: "",
+                login: "",
+                first_name: "",
+                second_name: "",
+                display_name: "",
+                phone: "",
                 avatarUrl: "",
             },
         };
-        this.chats = [...mockChats];
     }
 
     public getState(): AppState {
@@ -49,6 +49,57 @@ export default class AppModel extends EventBus {
 
     public setState(newState: Partial<AppState>): void {
         this.state = { ...this.state, ...newState };
+        this.emit(AppModel.EVENTS.STATE_UPDATED, this.state);
+    }
+
+    public mapUserDTO(dto: UserDTO): User {
+        return {
+            email: dto.email,
+            login: dto.login,
+            first_name: dto.first_name,
+            second_name: dto.second_name,
+            display_name: dto.display_name || dto.first_name,
+            phone: dto.phone,
+            avatarUrl: dto.avatar ? `${RESOURCES_URL}${dto.avatar}` : "",
+        };
+    }
+
+    public setChats(dtos: ChatDTO[]): void {
+        this.chats = dtos.map((dto) => {
+            const existing = this.chats.find((c) => c.id === dto.id);
+            const messages = existing ? existing.messages : [];
+
+            if (dto.last_message && messages.length === 0) {
+                const dateObj = new Date(dto.last_message.time);
+                const time = `${String(dateObj.getHours()).padStart(2, "0")}:${String(
+                    dateObj.getMinutes()
+                ).padStart(2, "0")}`;
+
+                messages.push({
+                    date: dateObj.toLocaleDateString("ru-RU"),
+                    list: [
+                        {
+                            id: String(Date.now()),
+                            autor:
+                                dto.last_message.user.login === this.state.currentUser.login
+                                    ? "My"
+                                    : dto.last_message.user.first_name,
+                            text: dto.last_message.content,
+                            time,
+                        },
+                    ],
+                });
+            }
+
+            return {
+                id: dto.id,
+                title: dto.title,
+                avatarUrl: dto.avatar ? `${RESOURCES_URL}${dto.avatar}` : "",
+                unreadCount: dto.unread_count,
+                messages,
+            };
+        });
+
         this.emit(AppModel.EVENTS.STATE_UPDATED, this.state);
     }
 
@@ -79,38 +130,12 @@ export default class AppModel extends EventBus {
         if (chat.messages.length > 0) {
             chat.messages[chat.messages.length - 1].list.push(newMsg);
         } else {
-            chat.messages.push({ date: "20.06.2020", list: [newMsg] });
+            chat.messages.push({
+                date: now.toLocaleDateString("ru-RU"),
+                list: [newMsg],
+            });
         }
 
         this.emit(AppModel.EVENTS.STATE_UPDATED, this.state);
-    }
-
-    public updateUser(user: User): void {
-        this.setState({
-            currentUser: user,
-            profileMode: "view",
-        });
-    }
-
-    public login(): void {
-        localStorage.setItem("isAuth", "true");
-        this.setState({
-            formErrors: null,
-            formValues: null,
-            isAuth: true,
-            currentPage: "chat",
-        });
-    }
-
-    public logout(): void {
-        localStorage.removeItem("isAuth");
-        this.setState({
-            isAuth: false,
-            currentPage: "login",
-            activeChatId: null,
-            formErrors: null,
-            formValues: null,
-            searchQuery: "",
-        });
     }
 }

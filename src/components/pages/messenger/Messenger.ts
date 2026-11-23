@@ -25,6 +25,9 @@ export interface MessengerPageProps extends BaseProps {
   modalValue: string;
   onStateChange: (newState: Partial<AppState>) => void;
   onSendMessage?: (chatId: number, text: string) => void;
+  onCreateChat: (title: string) => void;
+  onChatUserAction: (action: "add" | "delete", login: string) => void;
+  onNavigate: (path: string) => void;
   onLogout: () => void;
 }
 
@@ -79,8 +82,18 @@ export default class MessengerPage extends Block<MessengerPageProps> {
       const target = e.target as HTMLInputElement;
       this.props.onStateChange({ searchQuery: target.value });
     });
+    searchInput?.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const title = searchInput.value.trim();
+        if (title) {
+          this.props.onCreateChat(title);
+          this.props.onStateChange({ searchQuery: "" });
+        }
+      }
+    });
 
-    // Форма отправки сообщения (валидация по blur и submit)
+
     const messageForm = root.querySelector<HTMLFormElement>("#message-form");
     const messageInput =
       root.querySelector<HTMLInputElement>("#message-input");
@@ -107,7 +120,6 @@ export default class MessengerPage extends Block<MessengerPageProps> {
 
       if (error) return;
 
-      console.log("Отправка формы сообщения:", { message: text });
       if (this.props.activeChatId) {
         this.props.onSendMessage?.(Number(this.props.activeChatId), text);
       }
@@ -137,6 +149,8 @@ export default class MessengerPage extends Block<MessengerPageProps> {
       const modalInput = root.querySelector<HTMLInputElement>("#modal-login");
 
       modalInput?.addEventListener("blur", () => {
+        if (this.props.activeModal === "create-chat") return;
+
         const error = validateField("login", modalInput.value);
         const wrapper = modalInput.closest(".form-field");
         const errorSpan = wrapper?.querySelector(".form-field__error");
@@ -156,26 +170,32 @@ export default class MessengerPage extends Block<MessengerPageProps> {
 
       modalForm?.addEventListener("submit", (e: SubmitEvent) => {
         e.preventDefault();
-        const loginValue = modalInput ? modalInput.value.trim() : "";
-        const error = validateField("login", loginValue);
+        const value = modalInput ? modalInput.value.trim() : "";
         const actionType = modalForm.dataset.action;
 
+        if (actionType === "create-chat") {
+          if (!value) {
+            this.props.onStateChange({
+              modalError: "Введите название чата",
+              modalValue: value,
+            });
+            return;
+          }
+          this.props.onCreateChat(value);
+          return;
+        }
+
+        const error = validateField("login", value);
         if (error) {
           this.props.onStateChange({
             modalError: error,
-            modalValue: loginValue,
+            modalValue: value,
           });
-        } else {
-          console.log(`Отправка формы [${actionType}]:`, {
-            login: loginValue,
-          });
-          this.props.onStateChange({
-            activeModal: null,
-            modalError: null,
-            modalValue: "",
-          });
+        } else if (actionType === "add" || actionType === "delete") {
+          this.props.onChatUserAction(actionType, value);
         }
       });
+
     }
 
     root
@@ -186,7 +206,16 @@ export default class MessengerPage extends Block<MessengerPageProps> {
       .querySelector("#to-profile-btn")
       ?.addEventListener("click", (e: Event) => {
         e.preventDefault();
-        this.props.onStateChange({ currentPage: "profile" });
+        this.props.onNavigate("/settings");
+      });
+    root.
+      querySelector("#create-chat-btn")
+      ?.addEventListener("click", () => {
+        this.props.onStateChange({
+          activeModal: "create-chat",
+          modalError: null,
+          modalValue: "",
+        });
       });
   }
 
