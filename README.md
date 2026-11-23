@@ -4,7 +4,7 @@
 
 ## Ссылка на развёрнутый проект
 
-👉 **[Открыть мессенджер в Netlify]([https://aquamarine-churros-143e24.netlify.app/](https://aquamarine-churros-143e24.netlify.app))**
+👉 **[Открыть мессенджер в Netlify](https://aquamarine-churros-143e24.netlify.app)**
 
 ---
 
