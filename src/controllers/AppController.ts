@@ -33,6 +33,10 @@ export default class AppController {
         this.handleCreateChat = this.handleCreateChat.bind(this);
         this.handleChatUserAction = this.handleChatUserAction.bind(this);
         this.handleSendMessage = this.handleSendMessage.bind(this);
+        this.loadChatUsers = this.loadChatUsers.bind(this);
+        this.handleRemoveUserById = this.handleRemoveUserById.bind(this);
+        this.handleDeleteChat = this.handleDeleteChat.bind(this);
+        this.handleUpdateChatAvatar = this.handleUpdateChatAvatar.bind(this);
     }
 
     private getErrorReason(error: unknown, fallback: string): string {
@@ -241,4 +245,88 @@ export default class AppController {
     public handleSendMessage(chatId: number, text: string): void {
         this.model.addMessage(chatId, text);
     }
+
+    public async loadChatUsers(chatId: number): Promise<void> {
+        try {
+            const users = await this.chatsAPI.getChatUsers(chatId);
+            const currentLogin = this.model.getState().currentUser.login;
+            this.model.setState({
+                chatUsers: users.filter((u) => u.login !== currentLogin),
+            });
+        } catch (error) {
+            this.getErrorReason(error, "Не удалось загрузить участников чата");
+        }
+    }
+
+    public async handleRemoveUserById(userId: number): Promise<void> {
+        const chatId = Number(this.model.getState().activeChatId);
+        if (!chatId) return;
+
+        try {
+            await this.chatsAPI.deleteUsers(chatId, [userId]);
+            await this.loadChatUsers(chatId);
+        } catch (error) {
+            this.getErrorReason(error, "Не удалось удалить пользователя");
+        }
+    }
+
+    public async handleDeleteChat(): Promise<void> {
+        const chatId = Number(this.model.getState().activeChatId);
+        if (!chatId) return;
+
+        try {
+            await this.chatsAPI.deleteChat(chatId);
+            this.model.setState({
+                activeChatId: null,
+                isChatMenuOpen: false,
+            });
+            await this.loadChats();
+        } catch (error) {
+            if (error instanceof HTTPError && error.status === 403) {
+                this.model.setState({
+                    isChatMenuOpen: false,
+                    activeModal: "error-info",
+                    modalError: "Чат может удалить только его создатель",
+                });
+                return;
+            }
+
+            const reason = this.getErrorReason(error, "Не удалось удалить чат");
+            this.model.setState({
+                isChatMenuOpen: false,
+                activeModal: "error-info",
+                modalError: reason,
+            });
+        }
+    }
+
+
+    public async handleUpdateChatAvatar(file: File): Promise<void> {
+        const chatId = Number(this.model.getState().activeChatId);
+        if (!chatId) return;
+
+        try {
+            const formData = new FormData();
+            formData.append("chatId", String(chatId));
+            formData.append("avatar", file);
+
+            await this.chatsAPI.updateChatAvatar(formData);
+            await this.loadChats();
+            this.model.setState({
+                isChatAvatarModalOpen: false,
+                avatarModalState: "select",
+                avatarFileName: "",
+                avatarFile: null,
+                avatarModalError: null,
+            });
+        } catch {
+            this.model.setState({
+                avatarModalState: "error",
+                avatarFileName: "",
+                avatarFile: null,
+                avatarModalError: null,
+            });
+        }
+    }
+
 }

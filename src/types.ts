@@ -34,27 +34,6 @@ export type PageName = "login" | "signup" | "messenger" | "chat" | "profile" | 4
 export type ProfileMode = "view" | "edit-data" | "edit-password";
 export type AvatarModalState = "select" | "uploaded" | "error";
 
-export interface AppState {
-    isAuth: boolean;
-    currentPage: PageName;
-    activeChatId: number | string | null;
-    formErrors: Record<string, string> | null;
-    formValues: Record<string, string> | null;
-    searchQuery: string;
-    isAttachMenuOpen: boolean;
-    isChatMenuOpen: boolean;
-    activeModal: string | null;
-    modalError: string | null;
-    modalValue: string;
-    profileMode: ProfileMode;
-    isAvatarModalOpen: boolean;
-    avatarModalState: AvatarModalState;
-    avatarFileName: string;
-    avatarFile: File | null;
-    avatarModalError: string | null;
-    currentUser: User;
-}
-
 export interface SignInData {
     login: string;
     password: string;
@@ -78,6 +57,10 @@ export interface UserDTO {
     email: string;
     phone: string;
     avatar: string | null;
+}
+
+export interface ChatUserDTO extends UserDTO {
+    role: string;
 }
 
 export interface UpdateProfileData {
@@ -105,4 +88,27 @@ export interface ChatDTO {
         time: string;
         content: string;
     } | null;
+}
+
+export interface AppState {
+    isAuth: boolean;
+    currentPage: PageName;
+    activeChatId: number | string | null;
+    formErrors: Record<string, string> | null;
+    formValues: Record<string, string> | null;
+    searchQuery: string;
+    isAttachMenuOpen: boolean;
+    isChatMenuOpen: boolean;
+    activeModal: string | null;
+    modalError: string | null;
+    modalValue: string;
+    profileMode: ProfileMode;
+    isAvatarModalOpen: boolean;
+    avatarModalState: AvatarModalState;
+    avatarFileName: string;
+    avatarFile: File | null;
+    avatarModalError: string | null;
+    currentUser: User;
+    chatUsers: ChatUserDTO[];
+    isChatAvatarModalOpen: boolean;
 }

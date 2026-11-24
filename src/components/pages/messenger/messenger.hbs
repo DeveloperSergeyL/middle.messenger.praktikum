@@ -7,8 +7,41 @@
     {{> modal title="Добавить пользователя" buttonText="Добавить" action="add" error=modalError value=modalValue}}
     {{/if}}
 
-    <!-- 🌟 Если в стейте запущена модалка удаления -->
     {{#if (isEqual activeModal "delete-user")}}
-    {{> modal title="Удалить пользователя" buttonText="Удалить" action="delete" error=modalError value=modalValue}}
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-card__title">Удалить пользователя</h2>
+            <ul class="chat-users-list">
+                {{#each chatUsers}}
+                <li class="chat-users-list__item">
+                    <span>{{login}} ({{first_name}})</span>
+                    <button type="button" class="chat-users-list__remove-btn" data-user-id="{{id}}">Удалить</button>
+                </li>
+                {{else}}
+                <li class="chat-users-list__empty">В чате нет других участников</li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
     {{/if}}
+
+    {{#if isChatAvatarModalOpen}}
+    {{> avatarModal
+    avatarModalState=avatarModalState
+    avatarFileName=avatarFileName
+    avatarModalError=avatarModalError
+    }}
+    {{/if}}
+
+    {{#if (isEqual activeModal "error-info")}}
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-card__title modal-card__title--danger">Ошибка</h2>
+            <p class="modal-card__error-text" style="margin-bottom: 24px;">{{modalError}}</p>
+            {{> button type="button" text="Понятно" id="close-error-modal-btn" class="ui-button
+            modal-card__submit-btn"}}
+        </div>
+    </div>
+    {{/if}}
+
 </div>

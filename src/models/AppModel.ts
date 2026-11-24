@@ -1,7 +1,8 @@
 import EventBus from "../core/EventBus";
 import { AppState, Chat, ChatDTO, User, UserDTO } from "../types";
+import { BASE_URL } from "../utils/HTTPTransport";
 
-const RESOURCES_URL = "https://ya-praktikum.tech/api/v2/resources";
+const RESOURCES_URL = `${BASE_URL}/resources`;
 
 export default class AppModel extends EventBus {
     static EVENTS = {
@@ -31,6 +32,8 @@ export default class AppModel extends EventBus {
             avatarFileName: "",
             avatarFile: null,
             avatarModalError: null,
+            chatUsers: [],
+            isChatAvatarModalOpen: false,
             currentUser: {
                 email: "",
                 login: "",

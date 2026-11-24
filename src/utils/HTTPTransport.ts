@@ -60,19 +60,22 @@ function queryStringify(data: Record<string, unknown>): string {
     return params.length > 0 ? `?${params.join('&')}` : '';
 }
 
+export const BASE_URL = 'https://ya-praktikum.tech/api/v2';
+
 export default class HTTPTransport {
     private baseUrl: string;
 
-    constructor(baseUrl = '') {
-        this.baseUrl = baseUrl.replace(/\/+$/, '');
+    constructor(endpoint = '') {
+        const cleanEndpoint = endpoint.replace(/^\/+|\/+$/g, '');
+        this.baseUrl = cleanEndpoint ? `${BASE_URL}/${cleanEndpoint}` : BASE_URL;
     }
 
     private buildUrl(url: string): string {
         if (/^https?:\/\//i.test(url)) {
             return url;
         }
-        const cleanPath = url.startsWith("/") ? url : `/${url}`;
-        return `${this.baseUrl}${cleanPath}`;
+        const cleanPath = url.replace(/^\/+/, '');
+        return cleanPath ? `${this.baseUrl}/${cleanPath}` : this.baseUrl;
     }
 
     private parseResponse(xhr: XMLHttpRequest): unknown {
