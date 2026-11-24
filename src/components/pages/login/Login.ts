@@ -2,12 +2,13 @@ import Block, { BaseProps } from "../../../core/Block";
 import Form from "../../ui/form/Form";
 import Input from "../../ui/input/Input";
 import Button from "../../ui/button/Button";
-import { AppState } from "../../../types";
+import { SignInData } from "../../../types";
 
 export interface LoginPageProps extends BaseProps {
   errors: Record<string, string> | null;
   values: Record<string, string> | null;
-  onStateChange: (newState: Partial<AppState>) => void;
+  onSubmit: (data: SignInData) => void;
+  onNavigate: (path: string) => void;
 }
 
 export default class LoginPage extends Block<LoginPageProps> {
@@ -42,13 +43,10 @@ export default class LoginPage extends Block<LoginPageProps> {
         text: "Авторизоваться",
         class: "auth-card__submit-btn",
       }),
-      onSubmit: () => {
-        localStorage.setItem("isAuth", "true");
-        props.onStateChange({
-          formErrors: null,
-          formValues: null,
-          isAuth: true,
-          currentPage: "chat",
+      onSubmit: (values) => {
+        props.onSubmit({
+          login: values.login,
+          password: values.password,
         });
       },
     });
@@ -63,12 +61,9 @@ export default class LoginPage extends Block<LoginPageProps> {
     const toSignupBtn = this.element?.querySelector("#to-signup-btn");
     toSignupBtn?.addEventListener("click", (e: Event) => {
       e.preventDefault();
-      this.props.onStateChange({
-        formErrors: null,
-        formValues: null,
-        currentPage: "signup",
-      });
+      this.props.onNavigate("/sign-up");
     });
+
   }
 
   protected render(): string {
@@ -77,7 +72,7 @@ export default class LoginPage extends Block<LoginPageProps> {
         <main class="auth-card">
           <h1 class="auth-card__title">Вход</h1>
           {{{form}}}
-          {{> link href="/signup" id="to-signup-btn" text="Нет аккаунта?" class="auth-card__link"}}
+          {{> link href="/sign-up" id="to-signup-btn" text="Нет аккаунта?" class="auth-card__link"}}
         </main>
       </div>
     `;

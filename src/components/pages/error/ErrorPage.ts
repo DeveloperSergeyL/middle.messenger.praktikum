@@ -1,10 +1,9 @@
 import Block, { BaseProps } from "../../../core/Block";
 import errorPageTpl from "./error.hbs?raw";
-import { AppState } from "../../../types";
 
 export interface ErrorPageProps extends BaseProps {
   code: 404 | 500;
-  onStateChange: (newState: Partial<AppState>) => void;
+  onNavigate: (path: string) => void;
 }
 
 const DESCRIPTIONS: Record<number, string> = {
@@ -24,7 +23,7 @@ export default class ErrorPage extends Block<ErrorPageProps> {
     const backBtn = this.element?.querySelector("#error-back-btn");
     backBtn?.addEventListener("click", (e: Event) => {
       e.preventDefault();
-      this.props.onStateChange({ currentPage: "chat" });
+      this.props.onNavigate("/messenger");
     });
   }
 

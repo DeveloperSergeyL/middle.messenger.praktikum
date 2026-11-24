@@ -3,99 +3,123 @@ import SignupPage from "./components/pages/signup/Signup";
 import MessengerPage from "./components/pages/messenger/Messenger";
 import ProfilePage from "./components/pages/profile/Profile";
 import ErrorPage from "./components/pages/error/ErrorPage";
-import Block from "./core/Block";
 import AppModel from "./models/AppModel";
 import AppController from "./controllers/AppController";
+import Router from "./core/Router";
 
 export default class App {
   private model: AppModel;
   private controller: AppController;
-  private appElement: HTMLElement | null;
+  private router: Router;
 
   constructor() {
     this.model = new AppModel();
-    this.controller = new AppController(this.model);
-    this.appElement = document.getElementById("app");
+    this.router = new Router("#app");
+    this.controller = new AppController(this.model, this.router);
 
     this.model.on(AppModel.EVENTS.STATE_UPDATED, () => {
-      this.render();
+      this.router.rerenderCurrent();
+      this._restoreSearchFocus();
     });
   }
 
-  private mountPage(page: Block): void {
-    if (!this.appElement) return;
-    this.appElement.replaceChildren(page.getContent());
-    page.dispatchComponentDidMount();
-  }
-
-  public render(): void {
-    if (!this.appElement) return;
+  private _restoreSearchFocus(): void {
     const state = this.model.getState();
-
-    if (state.currentPage === 404 || state.currentPage === 500) {
-      const errorPage = new ErrorPage({
-        code: state.currentPage,
-        onStateChange: this.controller.handleStateChange,
-      });
-      this.mountPage(errorPage);
-      return;
-    }
-
-    if (!state.isAuth) {
-      if (state.currentPage === "signup") {
-        const signupPage = new SignupPage({
-          errors: state.formErrors,
-          values: state.formValues,
-          onStateChange: this.controller.handleStateChange,
-        });
-        this.mountPage(signupPage);
-      } else {
-        const loginPage = new LoginPage({
-          errors: state.formErrors,
-          values: state.formValues,
-          onStateChange: this.controller.handleStateChange,
-        });
-        this.mountPage(loginPage);
-      }
-      return;
-    }
-
-    if (state.currentPage === "profile") {
-      const profilePage = new ProfilePage({
-        user: state.currentUser,
-        profileMode: state.profileMode,
-        isAvatarModalOpen: state.isAvatarModalOpen,
-        avatarModalState: state.avatarModalState,
-        avatarFileName: state.avatarFileName,
-        avatarModalError: state.avatarModalError,
-        onStateChange: this.controller.handleStateChange,
-        onLogout: this.controller.handleLogout,
-      });
-      this.mountPage(profilePage);
-    } else {
-      const messengerPage = new MessengerPage({
-        chats: this.model.getFilteredChats(),
-        activeChatId: state.activeChatId,
-        searchQuery: state.searchQuery,
-        isAttachMenuOpen: state.isAttachMenuOpen,
-        isChatMenuOpen: state.isChatMenuOpen,
-        activeModal: state.activeModal,
-        modalError: state.modalError,
-        modalValue: state.modalValue,
-        onStateChange: this.controller.handleStateChange,
-        onSendMessage: this.controller.handleSendMessage,
-        onLogout: this.controller.handleLogout,
-      });
-      this.mountPage(messengerPage);
-    }
-
     const searchInput =
-      this.appElement.querySelector<HTMLInputElement>(".sidebar__search");
+      document.querySelector<HTMLInputElement>(".sidebar__search");
     if (searchInput && state.searchQuery) {
       searchInput.value = state.searchQuery;
       const length = searchInput.value.length;
       searchInput.focus();
       searchInput.setSelectionRange(length, length);
     }
+  }
+
+  public async render(): Promise<void> {
+    await this.controller.checkAuth();
+
+    this.router
+      .setGuard((pathname: string) => {
+        const { isAuth } = this.model.getState();
+        const isPublicRoute = pathname === "/" || pathname === "/sign-up";
+
+        if (!isAuth && !isPublicRoute && pathname !== "/404" && pathname !== "/500") {
+          return "/";
+        }
+
+        if (isAuth && isPublicRoute) {
+          return "/messenger";
+        }
+
+        return null;
+      })
+      .use("/", LoginPage, () => ({
+        errors: this.model.getState().formErrors,
+        values: this.model.getState().formValues,
+        onSubmit: this.controller.handleSignIn,
+        onNavigate: (path: string) => this.router.go(path),
+      }))
+      .use("/sign-up", SignupPage, () => ({
+        errors: this.model.getState().formErrors,
+        values: this.model.getState().formValues,
+        onSubmit: this.controller.handleSignUp,
+        onNavigate: (path: string) => this.router.go(path),
+      }))
+      .use("/messenger", MessengerPage, () => {
+        const state = this.model.getState();
+        return {
+          chats: this.model.getFilteredChats(),
+          activeChatId: state.activeChatId,
+          chatUsers: state.chatUsers,
+          isChatAvatarModalOpen: state.isChatAvatarModalOpen,
+          avatarModalState: state.avatarModalState,
+          avatarFileName: state.avatarFileName,
+          avatarFile: state.avatarFile,
+          avatarModalError: state.avatarModalError,
+          searchQuery: state.searchQuery,
+          isAttachMenuOpen: state.isAttachMenuOpen,
+          isChatMenuOpen: state.isChatMenuOpen,
+          activeModal: state.activeModal,
+          modalError: state.modalError,
+          modalValue: state.modalValue,
+          onStateChange: this.controller.handleStateChange,
+          onSendMessage: this.controller.handleSendMessage,
+          onCreateChat: this.controller.handleCreateChat,
+          onOpenDeleteUserModal: this.controller.loadChatUsers,
+          onRemoveUserById: this.controller.handleRemoveUserById,
+          onDeleteChat: this.controller.handleDeleteChat,
+          onUpdateChatAvatar: this.controller.handleUpdateChatAvatar,
+          onChatUserAction: this.controller.handleChatUserAction,
+          onNavigate: (path: string) => this.router.go(path),
+          onLogout: this.controller.handleLogout,
+        };
+      })
+      .use("/settings", ProfilePage, () => {
+        const state = this.model.getState();
+        return {
+          user: state.currentUser,
+          profileMode: state.profileMode,
+          isAvatarModalOpen: state.isAvatarModalOpen,
+          avatarModalState: state.avatarModalState,
+          avatarFileName: state.avatarFileName,
+          avatarFile: state.avatarFile,
+          avatarModalError: state.avatarModalError,
+          onStateChange: this.controller.handleStateChange,
+          onUpdateProfile: this.controller.handleUpdateProfile,
+          onUpdatePassword: this.controller.handleUpdatePassword,
+          onUpdateAvatar: this.controller.handleUpdateAvatar,
+          onNavigate: (path: string) => this.router.go(path),
+          onLogout: this.controller.handleLogout,
+        };
+      })
+      .use("/404", ErrorPage, () => ({
+        code: 404 as const,
+        onNavigate: (path: string) => this.router.go(path),
+      }))
+      .use("/500", ErrorPage, () => ({
+        code: 500 as const,
+        onNavigate: (path: string) => this.router.go(path),
+      }))
+      .start();
   }
 }

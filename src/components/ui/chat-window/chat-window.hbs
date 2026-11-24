@@ -2,7 +2,9 @@
     {{#if activeChat}}
     <header class="chat-header">
         <div class="chat-header__info">
-            {{> avatar url=activeChat.avatarUrl class="chat-header__avatar"}}
+            <div class="chat-header__avatar-btn" id="chat-avatar-btn" title="Поменять аватар чата">
+                {{> avatar url=activeChat.avatarUrl class="chat-header__avatar"}}
+            </div>
             <span class="chat-header__name">{{activeChat.title}}</span>
         </div>
         <div class="chat-header__actions-wrapper">
@@ -22,6 +24,12 @@
                         <div class="custom-icon__cross"></div>
                     </div>
                     <span class="actions-menu__text">Удалить пользователя</span>
+                </button>
+                <button type="button" class="actions-menu__item actions-menu__item--danger" id="delete-chat-btn">
+                    <div class="custom-icon custom-icon--remove">
+                        <div class="custom-icon__cross"></div>
+                    </div>
+                    <span class="actions-menu__text">Удалить чат</span>
                 </button>
             </div>
             {{/if}}

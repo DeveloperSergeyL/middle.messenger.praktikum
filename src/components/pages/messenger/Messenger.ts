@@ -6,7 +6,7 @@ import sidebarTpl from "../../ui/sidebar/sidebar.hbs?raw";
 import chatItemTpl from "../../ui/chat-item/chat-item.hbs?raw";
 import chatWindowTpl from "../../ui/chat-window/chat-window.hbs?raw";
 import messageTpl from "../../ui/message/message.hbs?raw";
-import { AppState, Chat } from "../../../types";
+import { AppState, AvatarModalState, Chat, ChatUserDTO } from "../../../types";
 import { validateField } from "../../../utils/validator";
 
 Handlebars.registerPartial("sidebar", sidebarTpl);
@@ -17,6 +17,12 @@ Handlebars.registerPartial("message", messageTpl);
 export interface MessengerPageProps extends BaseProps {
   chats: Chat[];
   activeChatId: number | string | null;
+  chatUsers: ChatUserDTO[];
+  isChatAvatarModalOpen: boolean;
+  avatarModalState: AvatarModalState;
+  avatarFileName: string;
+  avatarFile: File | null;
+  avatarModalError: string | null;
   searchQuery: string;
   isAttachMenuOpen: boolean;
   isChatMenuOpen: boolean;
@@ -25,6 +31,13 @@ export interface MessengerPageProps extends BaseProps {
   modalValue: string;
   onStateChange: (newState: Partial<AppState>) => void;
   onSendMessage?: (chatId: number, text: string) => void;
+  onCreateChat: (title: string) => void;
+  onOpenDeleteUserModal: (chatId: number) => void;
+  onRemoveUserById: (userId: number) => void;
+  onDeleteChat: () => void;
+  onUpdateChatAvatar: (file: File) => void;
+  onChatUserAction: (action: "add" | "delete", login: string) => void;
+  onNavigate: (path: string) => void;
   onLogout: () => void;
 }
 
@@ -79,8 +92,18 @@ export default class MessengerPage extends Block<MessengerPageProps> {
       const target = e.target as HTMLInputElement;
       this.props.onStateChange({ searchQuery: target.value });
     });
+    searchInput?.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const title = searchInput.value.trim();
+        if (title) {
+          this.props.onCreateChat(title);
+          this.props.onStateChange({ searchQuery: "" });
+        }
+      }
+    });
 
-    // Форма отправки сообщения (валидация по blur и submit)
+
     const messageForm = root.querySelector<HTMLFormElement>("#message-form");
     const messageInput =
       root.querySelector<HTMLInputElement>("#message-input");
@@ -107,7 +130,6 @@ export default class MessengerPage extends Block<MessengerPageProps> {
 
       if (error) return;
 
-      console.log("Отправка формы сообщения:", { message: text });
       if (this.props.activeChatId) {
         this.props.onSendMessage?.(Number(this.props.activeChatId), text);
       }
@@ -122,21 +144,44 @@ export default class MessengerPage extends Block<MessengerPageProps> {
       });
     });
 
-    root.querySelector("#delete-user-btn")?.addEventListener("click", () => {
+    root.querySelector("#delete-user-btn")?.addEventListener("click", (e: Event) => {
+      e.stopPropagation();
+      const chatId = Number(this.props.activeChatId);
       this.props.onStateChange({
         activeModal: "delete-user",
         isChatMenuOpen: false,
-        modalError: null,
-        modalValue: "",
+        chatUsers: [],
       });
+      if (chatId) {
+        this.props.onOpenDeleteUserModal(chatId);
+      }
     });
+
+    root.querySelector("#delete-chat-btn")?.addEventListener("click", (e: Event) => {
+      e.stopPropagation();
+      this.props.onDeleteChat();
+    });
+
 
     if (this.props.activeModal) {
       const modalOverlay = root.querySelector("#modal-overlay");
       const modalForm = root.querySelector<HTMLFormElement>("#modal-form");
       const modalInput = root.querySelector<HTMLInputElement>("#modal-login");
 
+
+      if (this.props.activeModal === "delete-user") {
+        const usersList = root.querySelector(".chat-users-list");
+        usersList?.addEventListener("click", (e: Event) => {
+          const target = e.target as HTMLElement | null;
+          const removeBtn = target?.closest<HTMLElement>("[data-user-id]");
+          if (removeBtn?.dataset.userId) {
+            this.props.onRemoveUserById(Number(removeBtn.dataset.userId));
+          }
+        });
+      }
       modalInput?.addEventListener("blur", () => {
+        if (this.props.activeModal === "create-chat") return;
+
         const error = validateField("login", modalInput.value);
         const wrapper = modalInput.closest(".form-field");
         const errorSpan = wrapper?.querySelector(".form-field__error");
@@ -154,28 +199,48 @@ export default class MessengerPage extends Block<MessengerPageProps> {
         }
       });
 
-      modalForm?.addEventListener("submit", (e: SubmitEvent) => {
-        e.preventDefault();
-        const loginValue = modalInput ? modalInput.value.trim() : "";
-        const error = validateField("login", loginValue);
-        const actionType = modalForm.dataset.action;
+      if (this.props.activeModal === "error-info") {
+        const closeErrorBtn =
+          root.querySelector("#close-error-modal-btn") ||
+          modalOverlay?.querySelector("button");
 
-        if (error) {
-          this.props.onStateChange({
-            modalError: error,
-            modalValue: loginValue,
-          });
-        } else {
-          console.log(`Отправка формы [${actionType}]:`, {
-            login: loginValue,
-          });
+        closeErrorBtn?.addEventListener("click", () => {
           this.props.onStateChange({
             activeModal: null,
             modalError: null,
-            modalValue: "",
           });
+        });
+      }
+
+
+      modalForm?.addEventListener("submit", (e: SubmitEvent) => {
+        e.preventDefault();
+        const value = modalInput ? modalInput.value.trim() : "";
+        const actionType = modalForm.dataset.action;
+
+        if (actionType === "create-chat") {
+          if (!value) {
+            this.props.onStateChange({
+              modalError: "Введите название чата",
+              modalValue: value,
+            });
+            return;
+          }
+          this.props.onCreateChat(value);
+          return;
+        }
+
+        const error = validateField("login", value);
+        if (error) {
+          this.props.onStateChange({
+            modalError: error,
+            modalValue: value,
+          });
+        } else if (actionType === "add" || actionType === "delete") {
+          this.props.onChatUserAction(actionType, value);
         }
       });
+
     }
 
     root
@@ -186,8 +251,62 @@ export default class MessengerPage extends Block<MessengerPageProps> {
       .querySelector("#to-profile-btn")
       ?.addEventListener("click", (e: Event) => {
         e.preventDefault();
-        this.props.onStateChange({ currentPage: "profile" });
+        this.props.onNavigate("/settings");
       });
+
+    root.querySelector("#chat-avatar-btn")?.addEventListener("click", () => {
+      this.props.onStateChange({
+        isChatAvatarModalOpen: true,
+        avatarModalState: "select",
+        avatarFileName: "",
+        avatarFile: null,
+        avatarModalError: null,
+      });
+    });
+
+    if (this.props.isChatAvatarModalOpen) {
+      const overlay = root.querySelector("#avatar-modal-overlay");
+      const fileLink = root.querySelector("#avatar-choose-link");
+      const fileInput =
+        root.querySelector<HTMLInputElement>("#avatar-file-input");
+      const modalForm =
+        root.querySelector<HTMLFormElement>("#avatar-modal-form");
+
+      overlay?.addEventListener("click", (e: Event) => {
+        if (e.target === overlay) {
+          this.props.onStateChange({ isChatAvatarModalOpen: false });
+        }
+      });
+
+      fileLink?.addEventListener("click", (e: Event) => {
+        e.preventDefault();
+        fileInput?.click();
+      });
+
+      fileInput?.addEventListener("change", (e: Event) => {
+        const target = e.target as HTMLInputElement;
+        const file = target.files?.[0];
+        if (file) {
+          this.props.onStateChange({
+            avatarModalState: "uploaded",
+            avatarFileName: file.name,
+            avatarFile: file,
+            avatarModalError: null,
+          });
+        }
+      });
+
+      modalForm?.addEventListener("submit", (e: SubmitEvent) => {
+        e.preventDefault();
+
+        if (this.props.avatarModalState === "select" || !this.props.avatarFile) {
+          this.props.onStateChange({ avatarModalError: "Нужно выбрать файл" });
+          return;
+        }
+
+        this.props.onUpdateChatAvatar(this.props.avatarFile);
+      });
+    }
   }
 
   private _setupDropdownMenu(
